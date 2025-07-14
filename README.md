@@ -21,7 +21,7 @@ This project implements a Retrieval-Augmented Generation (RAG) system that runs 
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd rag-cli
+   cd bluestaq-challenge
    ```
 2. Run the setup script to create a virtual environment and install dependencies:
    ```bash
