@@ -93,10 +93,16 @@ def reformulate_query(query):
         logger.info("Query does not start with a question word. Reformulating.")
         if len(query.split()) == 1:
             return f"What is the capital city of the country related to {query}?"
-        if "starts with" in query.lower():
-            return f"Which European country has a capital city starting with the letter {query.split('‘')[1][0].upper()}?"
-        if "ends with" in query.lower():
-            return f"Which European country has a capital city ending with the letter {query.split('‘')[1][0].lower()}?"
+        # Match "starts with" followed by a letter (optionally in quotes)
+        starts_with_match = re.search(r"starts with\s+['‘’]?([a-zA-Z])['‘’]?", query.lower())
+        if starts_with_match:
+            letter = starts_with_match.group(1).upper()
+            return f"Which European country has a capital city starting with the letter {letter}?"
+        # Match "ends with" followed by a letter (optionally in quotes)
+        ends_with_match = re.search(r"ends with\s+['‘’]?([a-zA-Z])['‘’]?", query.lower())
+        if ends_with_match:
+            letter = ends_with_match.group(1).lower()
+            return f"Which European country has a capital city ending with the letter {letter}?"
         return f"What is {query}?"
     return query
 
