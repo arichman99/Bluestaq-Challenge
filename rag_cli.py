@@ -25,36 +25,9 @@ logger = logging.getLogger(__name__)
 document_store = InMemoryDocumentStore()
 
 # Sample corpus
-corpus = [
-    Document(content="France is a country in Western Europe. Its capital is Paris.", meta={"title": "France", "source": "Test KB"}),
-    Document(content="Germany is a country in Central Europe. Its capital is Berlin.", meta={"title": "Germany", "source": "Test KB"}),
-    Document(content="Spain is a country in Southwestern Europe. Its capital is Madrid.", meta={"title": "Spain", "source": "Test KB"}),
-    Document(content="Italy is a country in Southern Europe. Its capital is Rome.", meta={"title": "Italy", "source": "Test KB"}),
-    Document(content="United Kingdom is a sovereign state off north-western Europe. Its capital is London.", meta={"title": "United Kingdom", "source": "Test KB"}),
-    Document(content="Greece is a country in Southeastern Europe. Its capital is Athens.", meta={"title": "Greece", "source": "Test KB"}),
-    Document(content="Netherlands is a country in Western Europe. Its capital is Amsterdam.", meta={"title": "Netherlands", "source": "Test KB"}),
-    Document(content="Belgium is a country in Western Europe. Its capital is Brussels.", meta={"title": "Belgium", "source": "Test KB"}),
-    Document(content="Portugal is a country in Southwestern Europe. Its capital is Lisbon.", meta={"title": "Portugal", "source": "Test KB"}),
-    Document(content="Sweden is a country in Northern Europe. Its capital is Stockholm.", meta={"title": "Sweden", "source": "Test KB"}),
-    Document(content="Norway is a country in Northern Europe. Its capital is Oslo.", meta={"title": "Norway", "source": "Test KB"}),
-    Document(content="Finland is a country in Northern Europe. Its capital is Helsinki.", meta={"title": "Finland", "source": "Test KB"}),
-    Document(content="Czech Republic is a landlocked country in Central Europe. Its capital is Prague.", meta={"title": "Czech Republic", "source": "Test KB"}),
-    Document(content="Switzerland is a mountainous Central European country. Its capital is Bern.", meta={"title": "Switzerland", "source": "Test KB"}),
-    Document(content="Austria is a landlocked country in Central Europe. Its capital is Vienna.", meta={"title": "Austria", "source": "Test KB"}),
-    Document(content="Poland is a country in Central Europe. Its capital is Warsaw.", meta={"title": "Poland", "source": "Test KB"}),
-    Document(content="Hungary is a landlocked country in Central Europe. Its capital is Budapest.", meta={"title": "Hungary", "source": "Test KB"}),
-    Document(content="Ireland is an island nation in Western Europe. Its capital is Dublin.", meta={"title": "Ireland", "source": "Test KB"}),
-    Document(content="Denmark is a Nordic country in Northern Europe. Its capital is Copenhagen.", meta={"title": "Denmark", "source": "Test KB"}),
-    Document(content="Russia spans Eastern Europe and Northern Asia. Its capital is Moscow.", meta={"title": "Russia", "source": "Test KB"}),
-    Document(content="The Eiffel Tower is a wrought-iron lattice tower in Paris, France, completed in 1889.", meta={"title": "Eiffel Tower", "source": "Test KB"}),
-    Document(content="The Colosseum is an ancient amphitheatre in Rome, Italy, built in AD 70–80.", meta={"title": "Colosseum", "source": "Test KB"}),
-    Document(content="Big Ben is the nickname for the Great Bell of the clock at the north end of the Palace of Westminster in London, United Kingdom.", meta={"title": "Big Ben", "source": "Test KB"}),
-    Document(content="The Brandenburg Gate is an 18th-century neoclassical monument in Berlin, Germany.", meta={"title": "Brandenburg Gate", "source": "Test KB"}),
-    Document(content="The Acropolis is an ancient citadel located on a rocky outcrop above Athens, Greece.", meta={"title": "Acropolis", "source": "Test KB"}),
-    Document(content="Sagrada Família is a large unfinished Roman Catholic basilica in Barcelona, Spain, designed by Antoni Gaudí.", meta={"title": "Sagrada Familia", "source": "Test KB"}),
-    Document(content="The Louvre is the world's largest art museum, located in Paris, France.", meta={"title": "Louvre Museum", "source": "Test KB"}),
-    Document(content="La Rambla is a famous street in central Barcelona, Spain, known for its shops and performers.", meta={"title": "La Rambla", "source": "Test KB"}),
-]
+with open("corpus.json", "r") as f:
+	corpus_data = json.load(f)
+corpus = [Document(content=doc["content"], meta=doc["meta]) for doc in corpus_data]
 
 # Initialize document embedder
 document_embedder = SentenceTransformersDocumentEmbedder(
