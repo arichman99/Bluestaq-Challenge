@@ -5,6 +5,7 @@ import torch
 import psutil
 import re
 import numpy as np
+import json
 from haystack import Pipeline
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.components.retrievers.in_memory import InMemoryBM25Retriever, InMemoryEmbeddingRetriever
@@ -27,7 +28,7 @@ document_store = InMemoryDocumentStore()
 # Sample corpus
 with open("corpus.json", "r") as f:
 	corpus_data = json.load(f)
-corpus = [Document(content=doc["content"], meta=doc["meta]) for doc in corpus_data]
+corpus = [Document(content=doc["content"], meta=doc["meta"]) for doc in corpus_data]
 
 # Initialize document embedder
 document_embedder = SentenceTransformersDocumentEmbedder(
@@ -186,7 +187,7 @@ def evaluate_model():
         ("Berlin", "Berlin is the capital of Germany."),
         ("Capital of Spain", "The capital of Spain is Madrid."),
         ("Which capital begins with B?", "Bern is the capital of Switzerland."),
-        ("What country’s capital is Helsinki?", "Finland’s capital is Helsinki."),
+        ("What country's capital is Helsinki?", "Finland's capital is Helsinki."),
         ("Name the capital of Portugal.", "The capital of Portugal is Lisbon."),
         ("Eiffel Tower", "The Eiffel Tower is in Paris, France."),
         ("Where is the Colosseum located?", "The Colosseum is located in Rome, Italy."),
@@ -194,8 +195,8 @@ def evaluate_model():
         ("What and where is Sagrada Família?", "The Sagrada Família is an unfinished basilica in Barcelona, Spain."),
         ("Which city is the seat of government of Italy?", "Rome is the seat of government of Italy."),
         ("Name a famous landmark in Athens", "The Acropolis is a famous landmark in Athens, Greece."),
-        ("Country whose capital starts with ‘A’?", "Austria’s capital is Vienna."),
-        ("Which European capital ends with ‘o’?", "Rome ends with ‘o’."),
+        ("Country whose capital starts with 'A'?", "Austria's capital is Vienna."),
+        ("Which European capital ends with 'o'?", "Rome ends with 'o'."),
         ("Describe Denmark in one sentence.", "Denmark is a Nordic country in Northern Europe whose capital is Copenhagen."),
     ]
 
