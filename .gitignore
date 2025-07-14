@@ -1,0 +1,21 @@
+# Python virtual environment
+     venv/
+     __pycache__/
+     *.pyc
+     *.pyo
+     *.pyd
+
+     # Jupyter notebooks and temporary files
+     .ipynb_checkpoints/
+     *.log
+
+     # System and editor files
+     .DS_Store
+     *.swp
+     *.swo
+
+     # Model and cache files
+     *.cache
+     *.bin
+     *.pt
+     *.pth
