@@ -18,19 +18,19 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 from fuzzywuzzy import fuzz
 
-# Setup logging
+# setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Initialize document store
+# initialize document store
 document_store = InMemoryDocumentStore()
 
-# Sample corpus
+# sample corpus
 with open("corpus.json", "r") as f:
 	corpus_data = json.load(f)
 corpus = [Document(content=doc["content"], meta=doc["meta"]) for doc in corpus_data]
 
-# Initialize document embedder
+# initialize document embedder
 document_embedder = SentenceTransformersDocumentEmbedder(
     model="sentence-transformers/all-MiniLM-L12-v2",
     device=ComponentDevice.from_str("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,7 +39,7 @@ document_embedder.warm_up()
 embedded_documents = document_embedder.run(corpus)["documents"]
 document_store.write_documents(embedded_documents)
 
-# Initialize retrieval pipeline
+# initialize retrieval pipeline
 def create_retrieval_pipeline():
     pipeline = Pipeline()
     pipeline.add_component("bm25", InMemoryBM25Retriever(document_store=document_store, top_k=10))
@@ -56,7 +56,7 @@ def create_retrieval_pipeline():
 
 retrieval_pipeline = create_retrieval_pipeline()
 
-# Initialize generation pipeline
+# initialize generation pipeline
 def create_generation_pipeline():
     pipeline = Pipeline()
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
@@ -84,7 +84,7 @@ def create_generation_pipeline():
 
 generation_pipeline = create_generation_pipeline()
 
-# Initialize sentence transformer for semantic similarity
+# initialize sentence transformer for semantic similarity
 similarity_model = SentenceTransformer("sentence-transformers/all-MiniLM-L12-v2")
 
 def reformulate_query(query):
@@ -103,13 +103,13 @@ def reformulate_query(query):
 def normalize_answer(answer, expected):
     norm_answer = answer.strip().rstrip('.').lower()
     norm_expected = expected.strip().rstrip('.').lower()
-    # Check string containment
+    # check string containment
     if norm_answer in norm_expected or norm_expected in norm_answer:
         return True
-    # Check fuzzy matching
+    # check fuzzy matching
     if fuzz.ratio(norm_answer, norm_expected) > 75:
         return True
-    # Check semantic similarity
+    # check semantic similarity
     embeddings = similarity_model.encode([answer, expected], convert_to_tensor=True)
     similarity = util.cos_sim(embeddings[0], embeddings[1]).item()
     return similarity > 0.65
@@ -161,7 +161,7 @@ def run_rag(query):
     gen_out = generation_pipeline.run({"generator": {"prompt": prompt}})
     answer = gen_out["generator"]["replies"][0].strip().rstrip('.')
     
-    # Fallback if answer contains placeholders
+    # fallback if answer contains placeholders
     if "[Capital]" in answer or "[Country]" in answer or "[Landmark]" in answer:
         answer = "I cannot find an answer based on the provided information."
         logger.warning(f"Fallback triggered for query: {query}")
@@ -220,11 +220,12 @@ def evaluate_model():
     avg_latency = sum(r["latency_s"] for r in results if "latency_s" in r) / len([r for r in results if "latency_s" in r])
     avg_memory = sum(r["memory_mb"] for r in results if "memory_mb" in r) / len([r for r in results if "memory_mb" in r])
     avg_cpu = sum(r["cpu_percent"] for r in results if "cpu_percent" in r) / len([r for r in results if "cpu_percent" in r])
-    click.echo(f"\nEvaluation Results:")
+    click.echo(f"\n=================== Evaluation Results ===================")
     click.echo(f"Accuracy: {accuracy:.2f}%")
     click.echo(f"Average Latency: {avg_latency:.2f} seconds")
     click.echo(f"Average Memory Usage: {avg_memory:.2f} MB")
     click.echo(f"Average CPU Usage: {avg_cpu:.2f}%")
+    click.echo("==========================================================")
     for r in results:
         click.echo(f"\nQuery: {r['query']}")
         if r["success"] or "error" not in r:
@@ -234,6 +235,7 @@ def evaluate_model():
             click.echo(f"CPU Usage: {r['cpu_percent']:.2f}%")
         else:
             click.echo(f"Error: {r['error']}")
+            click.echo("----------------------------------------------------------")
     return results
 
 @click.command()
@@ -249,33 +251,37 @@ def cli_main(evaluate):
         click.echo("  - Type 'exit' or 'quit' to stop, or press Ctrl+C.")
         click.echo("  - Run evaluation with: python rag_cli.py --evaluate")
         click.echo("Example queries: 'What is the capital of France?', 'Berlin', 'Eiffel Tower'")
-        click.echo("")
+        click.echo("=================== Start Query ===================")
         while True:
             try:
                 query = input("Enter your query: ")
                 if query.lower() in ["exit", "quit"]:
-                    click.echo("Exiting...")
+                    click.echo("=================== Exiting ===================")
                     break
                 result = run_rag(query)
                 if "error" in result:
                     click.echo(f"Error: {result['error']}")
                 else:
+                    click.echo("\n=================== Query ===================")
                     click.echo(f"\nQuery: {result['query']}")
                     if result['query'] != result['reformulated_query']:
                         click.echo(f"Reformulated Query: {result['reformulated_query']}")
-                    click.echo("Retrieved documents:")
+                    click.echo("\n=================== Retrieved Documents ===================")
                     for i, (title, content, source, score) in enumerate(result['documents'], 1):
                         click.echo(f"{i}. [{score:.3f}] {title} — {source}\n   {content}")
-                    click.echo(f"\nGenerated response: {result['answer']}")
+                    click.echo("\n=================== Generated Response ===================")
+                    click.echo(f"Answer: {result['answer']}")
                     if result.get("sources"):
-                        click.echo("Sources:")
+                        click.echo("\n=================== Sources ===================")
                         for i, (title, source, score) in enumerate(result["sources"], 1):
                             click.echo(f"{i}. [{score:.3f}] {title} — {source}")
+                    click.echo("\n=================== Performance Metrics ===================")        
                     click.echo(f"Response time: {result['latency_s']:.2f} seconds")
                     click.echo(f"Memory Usage: {result['memory_mb']:.2f} MB")
                     click.echo(f"CPU Usage: {result['cpu_percent']:.2f}%")
+                    click.echo("=================== End Query ===================")
             except KeyboardInterrupt:
-                click.echo("\nExiting...")
+                click.echo("\n=================== Exiting ===================")
                 break
             except Exception as e:
                 click.echo(f"Unexpected error: {str(e)}")
