@@ -96,7 +96,7 @@ See `ARCHITECTURE.md` for a detailed diagram and description.
 
 ## Evaluation Results
 The evaluation suite tests 15 queries, achieving:
-- **Accuracy**: 93.33% (14/15 correct answers)
+- **Accuracy**: 73.33% (11/15 correct answers)
 - **Average Latency**: ~0.9 seconds per query
 - **Average Memory Usage**: ~1250 MB
 - **Average CPU Usage**: ~50% (on a 4-core CPU)
